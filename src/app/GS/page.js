@@ -14,16 +14,39 @@ export default function ChatbotPage() {
   const [input, setInput] = useState("");
   const [faqOpen, setFaqOpen] = useState(false);
   const [isSidebarOpen, setSidebarOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!input.trim()) return;
 
-    setMessages([...messages, { sender: "user", text: input }]);
+    // Add user's message
+    const userMessage = input;
+    setMessages([...messages, { sender: "user", text: userMessage }]);
     setInput("");
+    setLoading(true);
 
-    setTimeout(() => {
-      setMessages((prev) => [...prev, { sender: "bot", text: "I'm here to help!" }]);
-    }, 1000);
+    try {
+      // Call the API endpoint
+      const res = await fetch("/api/route", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: userMessage }),
+      });
+
+      const data = await res.json();
+      setMessages((prev) => [
+        ...prev,
+        { sender: "bot", text: data.reply || "I'm here to help!" },
+      ]);
+    } catch (error) {
+      console.error("Error:", error);
+      setMessages((prev) => [
+        ...prev,
+        { sender: "bot", text: "Oops! Something went wrong." },
+      ]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -31,45 +54,69 @@ export default function ChatbotPage() {
       {/* Sidebar */}
       <div className={`sidebar ${isSidebarOpen ? "open" : ""}`}>
         <h4 className="sidebar-title">Menu</h4>
-<ul className="sidebar-menu">
-          <li >
+        <ul className="sidebar-menu">
+          <li>
             <Link href="/dashboard" aria-label="Go to Dashboard">
-              <span className="menu-icon" style={{ margin: "5px" }}><img src="/dashboard-2-48.png" width="20" height="20"/></span>    Dashboard
+              <span className="menu-icon" style={{ margin: "5px" }}>
+                <img src="/dashboard-2-48.png" width="20" height="20" />
+              </span>
+              Dashboard
             </Link>
           </li>
           <li>
             <Link href="/settings" aria-label="Go to Settings">
-              <span className="menu-icon" style={{ margin: "5px" }}><img src="/gear-48.png" width="20" height="20"/></span> Settings
+              <span className="menu-icon" style={{ margin: "5px" }}>
+                <img src="/gear-48.png" width="20" height="20" />
+              </span>
+              Settings
             </Link>
           </li>
           <li>
             <Link href="/ai-doctor" aria-label="Go to AI Doctor">
-              <span className="menu-icon" style={{ margin: "5px" }}><img src="/appointment-reminders-48.png" width="20" height="20"/></span> Appointments
+              <span className="menu-icon" style={{ margin: "5px" }}>
+                <img src="/appointment-reminders-48.png" width="20" height="20" />
+              </span>
+              Appointments
             </Link>
           </li>
           <li>
             <Link href="/myhealth-tracker" aria-label="Go to MyHealth Tracker">
-              <span className="menu-icon" style={{ margin: "5px" }}><img src="/report-2-48.png" width="20" height="20"/></span> MyHealth Tracker
+              <span className="menu-icon" style={{ margin: "5px" }}>
+                <img src="/report-2-48.png" width="20" height="20" />
+              </span>
+              MyHealth Tracker
             </Link>
           </li>
           <li>
             <Link href="/special-care" aria-label="Go to Special Care Hub">
-              <span className="menu-icon" style={{ margin: "5px" }}><img src="/baby-48.png" width="20" height="20"/></span> Special Care Hub
+              <span className="menu-icon" style={{ margin: "5px" }}>
+                <img src="/baby-48.png" width="20" height="20" />
+              </span>
+              Special Care Hub
             </Link>
           </li>
           <li>
             <Link href="/Sidebarpages/xray">
-              <span className="menu-icon" style={{ margin: "5px" }}><img src="/xray-48.png" width="20" height="20"/></span> AI X-Ray Analyzer
+              <span className="menu-icon" style={{ margin: "5px" }}>
+                <img src="/xray-48.png" width="20" height="20" />
+              </span>
+              AI X-Ray Analyzer
             </Link>
           </li>
           <li>
             <Link href="/Sidebarpages/article" aria-label="Go to Disease Prevention">
-              <span className="menu-icon" style={{ margin: "5px" }}><img src="/virus.png" width="20" height="20"/></span> Disease Prevention
+              <span className="menu-icon" style={{ margin: "5px" }}>
+                <img src="/virus.png" width="20" height="20" />
+              </span>
+              Disease Prevention
             </Link>
           </li>
           <li>
             <Link href="/profile" aria-label="Go to Profile">
-             <span className="menu-icon" style={{ margin: "5px" }}><img src="/user-48.png" width="20" height="20"/></span> Profile
+              <span className="menu-icon" style={{ margin: "5px" }}>
+                <img src="/user-48.png" width="20" height="20" />
+              </span>
+              Profile
             </Link>
           </li>
         </ul>
@@ -99,7 +146,7 @@ export default function ChatbotPage() {
         </div>
       </nav>
 
-      {/* Main Content Wrapper with top margin to account for navbar */}
+      {/* Main Content */}
       <div style={{ marginTop: "80px" }}>
         {/* AI Avatar Section */}
         <div className="ai-avatar">
@@ -131,14 +178,15 @@ export default function ChatbotPage() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={(e) => e.key === "Enter" && handleSend()}
+              disabled={loading}
             />
-            <button className="send-btn" onClick={handleSend}>
-              Send
+            <button className="send-btn" onClick={handleSend} disabled={loading}>
+              {loading ? "..." : "Send"}
             </button>
           </div>
         </div>
 
-        {/* FAQ Section (Right Side) */}
+        {/* FAQ Section */}
         <div className={`faq-section ${faqOpen ? "open" : ""}`}>
           <button className="faq-toggle" onClick={() => setFaqOpen(!faqOpen)}>
             {faqOpen ? "❌ Close FAQ" : "❓ FAQ"}

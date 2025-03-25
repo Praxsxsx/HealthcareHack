@@ -1,22 +1,32 @@
-// src/app/firebaseConfig.js
-import { getApp, getApps, initializeApp } from "firebase/app";
+"use client"; // Ensure this runs on the client
 
-// These should be your public Firebase config keys (not the private admin keys!)
-const clientConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
+import { initializeApp } from "firebase/app";
+import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDIBGi5QTFkpxisk6AA5Dr7EskNwkYc2yQ",
+  authDomain: "virtualaiclinician.firebaseapp.com",
+  projectId: "virtualaiclinician",
+  storageBucket: "virtualaiclinician.appspot.com",
+  messagingSenderId: "701736821207",
+  appId: "1:701736821207:web:f75e570604b0e483602b92",
+  measurementId: "G-00PF9QGYCQ"
 };
 
-// Ensure Firebase is only initialized once in the client
-let firebaseApp;
-if (!getApps().length) {
-  firebaseApp = initializeApp(clientConfig);
-} else {
-  firebaseApp = getApp();
+// Initialize Firebase only in the browser
+let app;
+if (typeof window !== "undefined") {
+  app = initializeApp(firebaseConfig);
 }
 
-export default firebaseApp;
+const auth = getAuth();
+const provider = new GoogleAuthProvider();
+
+export const signInWithGoogle = async () => {
+  try {
+    const result = await signInWithPopup(auth, provider);
+    console.log("User signed in:", result.user);
+  } catch (error) {
+    console.error("Google Sign-In Error:", error);
+  }
+};

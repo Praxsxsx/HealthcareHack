@@ -71,7 +71,7 @@ export default function Home() {
             </Link>
           </li>
           <li>
-            <Link href="/profile" aria-label="Go to Profile">
+            <Link href="/Sidebarpages/profile" aria-label="Go to Profile">
              <span className="menu-icon" style={{ margin: "5px" }}><img src="/user-48.png" width="20" height="20"/></span> Profile
             </Link>
           </li>

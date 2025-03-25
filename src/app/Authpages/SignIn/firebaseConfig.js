@@ -1,4 +1,4 @@
-import { getAnalytics } from "firebase/analytics";
+import { getAnalytics, isSupported } from "firebase/analytics";
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 
@@ -11,8 +11,20 @@ const firebaseConfig = {
   appId: "1:701736821207:web:f75e570604b0e483602b92",
   measurementId: "G-00PF9QGYCQ"
 };
+
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+
+// Initialize Analytics only on the client side.
+let analytics;
+if (typeof window !== "undefined") {
+  // Use isSupported to ensure Firebase Analytics is supported.
+  isSupported().then((supported) => {
+    if (supported) {
+      analytics = getAnalytics(app);
+    }
+  });
+}
+
 const auth = getAuth(app);
 
 export { auth };
