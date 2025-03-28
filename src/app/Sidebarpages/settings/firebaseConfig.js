@@ -1,24 +1,26 @@
+// Import required Firebase modules
 import { getAnalytics, isSupported } from "firebase/analytics";
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore"; // ✅ Added Firestore import
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
 
+// Your Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyDIBGi5QTFkpxisk6AA5Dr7EskNwkYc2yQ",
   authDomain: "virtualaiclinician.firebaseapp.com",
   projectId: "virtualaiclinician",
-  storageBucket: "virtualaiclinician.appspot.com", // ✅ Corrected storage bucket
+  storageBucket: "virtualaiclinician.appspot.com",
   messagingSenderId: "701736821207",
   appId: "1:701736821207:web:f75e570604b0e483602b92",
-  measurementId: "G-00PF9QGYCQ"
+  measurementId: "G-00PF9QGYCQ",
 };
 
-// ✅ Initialize Firebase
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const db = getFirestore(app); // ✅ Initialize Firestore
+const db = getFirestore(app);
 
-// ✅ Handle Analytics only in client-side
+// Handle Analytics only in client-side
 let analytics;
 if (typeof window !== "undefined") {
   isSupported().then((supported) => {
@@ -31,4 +33,5 @@ if (typeof window !== "undefined") {
   });
 }
 
-export { auth, db }; // ✅ Exporting both auth and db
+// ✅ Export auth, db, and onAuthStateChanged
+export { auth, db, onAuthStateChanged };

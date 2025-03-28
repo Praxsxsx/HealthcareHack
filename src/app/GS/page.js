@@ -31,7 +31,7 @@ export default function ChatbotPage() {
     try {
         setMessages((prev) => [...prev, { sender: "bot", text: "⏳ Processing..." }]);
 
-        const response = await fetch("https://0e07-34-31-131-178.ngrok-free.app/alpha_bot7", { 
+        const response = await fetch("https://fc45-35-187-154-206.ngrok-free.app/alpha_bot7", { 
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ query: input }), 
@@ -91,68 +91,44 @@ export default function ChatbotPage() {
       <div className={`sidebar ${isSidebarOpen ? "open" : ""}`}>
         <h4 className="sidebar-title">Menu</h4>
         <ul className="sidebar-menu">
-          <li>
-            <Link href="/dashboard" aria-label="Go to Dashboard">
-              <span className="menu-icon" style={{ margin: "5px" }}>
-                <img src="/dashboard-2-48.png" width="20" height="20" />
-              </span>
-              Dashboard
+          <li >
+            <Link href="/Sidebarpages/Dashboard" aria-label="Go to Dashboard">
+              <span className="menu-icon" style={{ margin: "5px" }}><img src="/dashboard-2-48.png" width="20" height="20"/></span>    Dashboard
             </Link>
           </li>
           <li>
-            <Link href="/settings" aria-label="Go to Settings">
-              <span className="menu-icon" style={{ margin: "5px" }}>
-                <img src="/gear-48.png" width="20" height="20" />
-              </span>
-              Settings
+            <Link href="/Sidebarpages/settings" aria-label="Go to Settings">
+              <span className="menu-icon" style={{ margin: "5px" }}><img src="/gear-48.png" width="20" height="20"/></span> Settings
             </Link>
           </li>
           <li>
-            <Link href="/ai-doctor" aria-label="Go to AI Doctor">
-              <span className="menu-icon" style={{ margin: "5px" }}>
-                <img src="/appointment-reminders-48.png" width="20" height="20" />
-              </span>
-              Appointments
+            <Link href="/Sidebarpages/ai-doctor" aria-label="Go to AI Doctor">
+              <span className="menu-icon" style={{ margin: "5px" }}><img src="/appointment-reminders-48.png" width="20" height="20"/></span> Appointments
             </Link>
           </li>
           <li>
             <Link href="/myhealth-tracker" aria-label="Go to MyHealth Tracker">
-              <span className="menu-icon" style={{ margin: "5px" }}>
-                <img src="/report-2-48.png" width="20" height="20" />
-              </span>
-              MyHealth Tracker
+              <span className="menu-icon" style={{ margin: "5px" }}><img src="/report-2-48.png" width="20" height="20"/></span> MyHealth Tracker
             </Link>
           </li>
           <li>
             <Link href="/special-care" aria-label="Go to Special Care Hub">
-              <span className="menu-icon" style={{ margin: "5px" }}>
-                <img src="/baby-48.png" width="20" height="20" />
-              </span>
-              Special Care Hub
+              <span className="menu-icon" style={{ margin: "5px" }}><img src="/baby-48.png" width="20" height="20"/></span> Special Care Hub
             </Link>
           </li>
           <li>
             <Link href="/Sidebarpages/xray">
-              <span className="menu-icon" style={{ margin: "5px" }}>
-                <img src="/xray-48.png" width="20" height="20" />
-              </span>
-              AI X-Ray Analyzer
+              <span className="menu-icon" style={{ margin: "5px" }}><img src="/xray-48.png" width="20" height="20"/></span> AI X-Ray Analyzer
             </Link>
           </li>
           <li>
             <Link href="/Sidebarpages/article" aria-label="Go to Disease Prevention">
-              <span className="menu-icon" style={{ margin: "5px" }}>
-                <img src="/virus.png" width="20" height="20" />
-              </span>
-              Disease Prevention
+              <span className="menu-icon" style={{ margin: "5px" }}><img src="/virus.png" width="20" height="20"/></span> Disease Prevention
             </Link>
           </li>
           <li>
-            <Link href="/profile" aria-label="Go to Profile">
-              <span className="menu-icon" style={{ margin: "5px" }}>
-                <img src="/user-48.png" width="20" height="20" />
-              </span>
-              Profile
+            <Link href="/Sidebarpages/profile" aria-label="Go to Profile">
+             <span className="menu-icon" style={{ margin: "5px" }}><img src="/user-48.png" width="20" height="20"/></span> Profile
             </Link>
           </li>
         </ul>

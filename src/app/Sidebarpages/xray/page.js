@@ -5,104 +5,158 @@ import { useEffect, useRef, useState } from "react";
 import "./xray.css";
 
 export default function Chatbot() {
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState([
+    {
+      text: " Upload your X-ray image and discover the invisible! ✨",
+      sender: "bot",
+    },
+  ]);
   const [input, setInput] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
-  const [imagePreview, setImagePreview] = useState(null);
-  const [predictedImage, setPredictedImage] = useState(null);
+  const [fileName, setFileName] = useState(""); // ✅ Store file name for display
+  const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, [messages, loading]);
 
+  // ✅ Handle X-ray file selection
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       setSelectedFile(file);
-      setImagePreview(URL.createObjectURL(file));
+      setFileName(file.name); 
+      e.target.value = ""; 
     }
   };
 
   const sendMessage = async () => {
     if (!input.trim() && !selectedFile) return;
-    const userMsg = { text: input || `Uploaded file: ${selectedFile?.name}`, sender: "user" };
-    setMessages((prev) => [...prev, userMsg]);
-    setInput("");
-    setImagePreview(null);
-    let botText = "🤖 Analyzing your X-ray... Please wait.";
 
+    if (input.trim()) {
+      setMessages((prev) => [...prev, { text: input, sender: "user" }]);
+      setInput("");
+    }
+
+    // Add file upload message if a file is selected
     if (selectedFile) {
-      try {
-        const formData = new FormData();
+      setMessages((prev) => [
+        ...prev,
+        { text: ` ᵔ ᵕ ᵔ   File uploaded for processing: ${fileName}`, sender: "user" },
+      ]);
+    }
+
+    setLoading(true);
+
+    // Bot's "Processing..." message
+    setMessages((prev) => [
+      ...prev,
+      { text: " Analyzing... Please wait.", sender: "bot" },
+    ]);
+
+    try {
+      const formData = new FormData();
+      if (selectedFile) {
         formData.append("file", selectedFile);
-        // Change this URL to your ngrok public URL if using ngrok; otherwise, localhost works if running locally
-        const response = await fetch("http://localhost:8000/predict/", {
+      }
+
+      // ✅ Send request to /analyze_xray endpoint
+      const response = await fetch(
+        "https://4d92-34-148-72-96.ngrok-free.app/analyze_xray",
+        {
           method: "POST",
           body: formData,
-        });
-
-        if (response.ok) {
-          const blob = await response.blob();
-          const imageUrl = URL.createObjectURL(blob);
-          setPredictedImage(imageUrl);
-          botText = "✅ Prediction complete!";
-        } else {
-          const data = await response.json();
-          botText = `❌ Error: ${data?.error || "Unknown error"}`;
         }
-      } catch (error) {
-        console.error("Error uploading file:", error);
-        botText = "❌ Error occurred while processing your X-ray. Please try again!";
-      } finally {
-        setSelectedFile(null);
+      );
+
+      if (!response.ok) throw new Error();
+
+      if (selectedFile) {
+        const blob = await response.blob(); // ✅ Get image as blob
+        const imageUrl = URL.createObjectURL(blob); // ✅ Create URL for processed image
+        setMessages((prev) => [
+          ...prev.slice(0, -1), // Remove "Processing..." message
+          { text: " Oh my! You've got fractures consult a proffessional", sender: "bot" },
+          { image: imageUrl, sender: "bot" },
+        ]);
+      } else {
+        const data = await response.json();
+        const botText = `✅ Response: ${
+          data.answer || "No response received."
+        }`;
+        setMessages((prev) => [
+          ...prev.slice(0, -1),
+          { text: botText, sender: "bot" },
+        ]);
       }
-    } else if (input.trim()) {
-      botText = "🤖 Sorry, I can only analyze X-ray images. Please upload an image.";
+    } catch (error) {
+      console.error("Error processing:", error);
+      setMessages((prev) => [
+        ...prev.slice(0, -1),
+        {
+          text: "Error occurred while processing. Please try again!",
+          sender: "bot",
+        },
+      ]);
+    } finally {
+      setLoading(false);
+      setSelectedFile(null);
+      setFileName(""); 
     }
-    const botMsg = { text: botText, sender: "bot" };
-    setMessages((prev) => [...prev, botMsg]);
   };
 
   return (
     <div className="cb-container">
-      <h1 className="cb-title">🩻 Upload Your X-ray</h1>
+      <h1 className="cb-title"> Upload Your X-ray</h1>
       <div className="cb-box">
         {messages.map((msg, index) => (
           <motion.div
             key={index}
-            className={`cb-message ${msg.sender === "user" ? "cb-message-user" : "cb-message-bot"}`}
+            className={`cb-message ${
+              msg.sender === "user" ? "cb-message-user" : "cb-message-bot"
+            }`}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.2 }}
           >
-            {msg.text}
+            {msg.text && <p>{msg.text}</p>}
+            {msg.image && (
+              <div className="cb-img-container">
+                <img src={msg.image} alt="Processed X-ray" className="cb-img" />
+                <a
+                  href={msg.image}
+                  download="processed_xray.jpg"
+                  className="cb-download-btn"
+                >
+                  💾 Download Image
+                </a>
+              </div>
+            )}
           </motion.div>
         ))}
-        {imagePreview && (
-          <div className="cb-preview">
-            <h3 className="cb-preview-title">🖼️ X-ray Preview</h3>
-            <img src={imagePreview} alt="Preview" className="cb-preview-img" />
-          </div>
-        )}
         <div ref={messagesEndRef} />
       </div>
-      {predictedImage && (
-        <div className="cb-prediction">
-          <h3>📸 Predicted X-ray:</h3>
-          <img src={predictedImage} alt="Predicted Result" className="cb-prediction-img" />
-        </div>
-      )}
+
       <div className="cb-input-row">
+        {/* Custom File Input */}
+        <label htmlFor="file-upload" className="cb-file-label">
+          🗁 Choose File
+        </label>
         <input
-          type="text"
-          className="cb-input-field"
-          placeholder="Type your message..."
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
+          id="file-upload"
+          type="file"
+          accept="image/*"
+          className="cb-file-upload"
+          onChange={handleFileChange}
+          disabled={loading}
         />
-        <input type="file" accept="image/*" className="cb-file-upload" onChange={handleFileChange} />
-        <button className="cb-send-btn" onClick={sendMessage}>📤 Send</button>
+
+        {fileName && <span className="cb-file-name">🗀  {fileName}</span>}
+
+        <button className="cb-send-btn" onClick={sendMessage} disabled={loading}>
+          {loading ? "⏱ Sending..." : "Send ⌯⌲"}
+        </button>
       </div>
     </div>
   );

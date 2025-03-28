@@ -1,31 +1,26 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+// /src/app/api/news/route.js
+import { NextResponse } from "next/server";
 
-const genAI = new GoogleGenerativeAI("AIzaSyApOwzGaK53FPS76ejuim2ID_vkHJEhwb4");
+const NEWS_API_KEY = "YOUR_NEWS_API_KEY"; // Replace with your News API key
+const NEWS_API_URL = `https://newsapi.org/v2/top-headlines?country=in&category=health&apiKey=${NEWS_API_KEY}`;
 
-export async function POST(req) {
+export async function GET() {
   try {
-    const { message } = await req.json();
+    const res = await fetch(NEWS_API_URL);
 
-    const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash",
-      generationConfig: {
-        temperature: 2,
-        topP: 0.95,
-        topK: 40,
-        maxOutputTokens: 8192,
-        responseMimeType: "text/plain",
-      },
-    });
+    if (!res.ok) {
+      return NextResponse.json(
+        { error: "Failed to fetch news from the API" },
+        { status: res.status }
+      );
+    }
 
-    const result = await model.generateContent(message);
-    const response = result.response;
-    const text = await response.text();
-
-    return new Response(JSON.stringify({ reply: text }), { status: 200 });
+    const data = await res.json();
+    return NextResponse.json({ articles: data.articles });
   } catch (error) {
-    console.error("Error generating response:", error);
-    return new Response(
-      JSON.stringify({ error: "Failed to generate response" }),
+    console.error("Error fetching news:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
       { status: 500 }
     );
   }
