@@ -88,7 +88,7 @@ export default function ChatbotPage() {
     try {
       setMessages((prev) => [...prev, { sender: "bot", text: "⏳ Processing..." }]);
 
-      const response = await fetch("https://fc45-35-187-154-206.ngrok-free.app/alpha_bot7", {
+      const response = await fetch("https://8c62-34-127-36-42.ngrok-free.app/alpha_bot80", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ query: input }),
@@ -223,25 +223,27 @@ export default function ChatbotPage() {
       <div style={{ marginTop: "80px" }}>
         {/* AI Avatar Section */}
         <div className="ai-avatar">
-          
-          {isSpeaking ? (
-            <Image
-              key={gifKey} // Force GIF reset with key change
-              src="/doc.gif"
-              alt="AI Avatar"
-              width={200}
-              height={200}
-              className="avatar-image"
-            />
-          ) : (
+          <div className="avatar-wrapper">
+            {/* Static Image as Base */}
             <Image
               src="/doc.jpg"
               alt="AI Avatar"
               width={200}
               height={200}
-              className="avatar-image"
+              className="avatar-image static-image"
             />
-          )}
+            {/* GIF Overlay when Speaking */}
+            {isSpeaking && (
+              <Image
+                key={gifKey} // Reset GIF with key change
+                src="/doc.gif"
+                alt="AI Speaking Animation"
+                width={200}
+                height={200}
+                className="avatar-image gif-overlay"
+              />
+            )}
+          </div>
         </div>
 
         {/* Chat Box */}

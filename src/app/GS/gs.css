@@ -155,3 +155,35 @@
 .faq-content li {
   margin-bottom: 6px;
 }
+.avatar-wrapper {
+  position: relative;
+  width: 200px;
+  height: 200px;
+}
+
+.avatar-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: auto;
+}
+
+.static-image {
+  z-index: 1; /* Static image as base */
+}
+
+.gif-overlay {
+  z-index: 2; /* GIF on top when speaking */
+  animation: fadeIn 0.1s ease-in-out;
+}
+
+/* Optional fade effect for smoother GIF appearance */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
