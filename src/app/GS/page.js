@@ -3,7 +3,7 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./gs.css"; // Import your custom CSS
 
 export default function ChatbotPage() {
@@ -15,7 +15,64 @@ export default function ChatbotPage() {
   const [faqOpen, setFaqOpen] = useState(false);
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [isMuted, setIsMuted] = useState(false); // Mute/Unmute state
+  const [voices, setVoices] = useState([]); // Available voices
+  const [isSpeaking, setIsSpeaking] = useState(false); // Control GIF state
+  const [gifKey, setGifKey] = useState(0); // Key to reset GIF
 
+  // Load available voices
+  useEffect(() => {
+    const loadVoices = () => {
+      const availableVoices = window.speechSynthesis.getVoices();
+      setVoices(availableVoices);
+    };
+
+    loadVoices();
+    if (window.speechSynthesis.onvoiceschanged !== undefined) {
+      window.speechSynthesis.onvoiceschanged = loadVoices;
+    }
+  }, []);
+
+  // Speak Text with TTS (Female Voice)
+  const speakText = (text) => {
+    if (isMuted) return;
+    if ("speechSynthesis" in window) {
+      const synth = window.speechSynthesis;
+      const utterance = new SpeechSynthesisUtterance(text);
+
+      // Find and select a female voice
+      const femaleVoice = voices.find(
+        (voice) =>
+          voice.name.includes("Female") ||
+          voice.name.includes("Google UK English Female") ||
+          voice.name.includes("Microsoft Zira")
+      );
+
+      // Set female voice if available
+      if (femaleVoice) {
+        utterance.voice = femaleVoice;
+      } else {
+        console.warn("Female voice not found. Using default voice.");
+      }
+
+      utterance.lang = "en-US"; // Set language
+      utterance.rate = 1; // Normal speed
+      utterance.pitch = 1.1; // Slightly higher pitch for a more natural female voice
+
+      // Start and stop GIF control
+      utterance.onstart = () => {
+        setIsSpeaking(true);
+        setGifKey((prevKey) => prevKey + 1); // Change key to reset GIF
+      };
+      utterance.onend = () => setIsSpeaking(false);
+
+      synth.speak(utterance);
+    } else {
+      console.error("Speech Synthesis not supported in this browser.");
+    }
+  };
+
+  // Handle Sending Message
   const handleSend = async () => {
     if (!input.trim()) return;
 
@@ -29,61 +86,32 @@ export default function ChatbotPage() {
     const timeoutId = setTimeout(() => controller.abort(), 60000); // 60-second timeout
 
     try {
-        setMessages((prev) => [...prev, { sender: "bot", text: "⏳ Processing..." }]);
+      setMessages((prev) => [...prev, { sender: "bot", text: "⏳ Processing..." }]);
 
-        const response = await fetch("https://fc45-35-187-154-206.ngrok-free.app/alpha_bot7", { 
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ query: input }), 
-            signal: controller.signal,
-        });
+      const response = await fetch("https://fc45-35-187-154-206.ngrok-free.app/alpha_bot7", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query: input }),
+        signal: controller.signal,
+      });
 
-        clearTimeout(timeoutId);
+      clearTimeout(timeoutId);
 
-        if (!response.ok) throw new Error();
+      if (!response.ok) throw new Error();
 
-        const data = await response.json();
-        setMessages((prev) => [...prev.slice(0, -1), { sender: "bot", text: data.answer }]);
+      const data = await response.json();
+
+      // Speak bot's response
+      speakText(data.answer); // Speak response
+
+      setMessages((prev) => [...prev.slice(0, -1), { sender: "bot", text: data.answer }]);
     } catch (error) {
-        setMessages((prev) => [...prev.slice(0, -1), { sender: "bot", text: "⚠️ An error occurred. Try again!" }]);
+      const errorMessage = "An error occurred. Try again!";
+      setMessages((prev) => [...prev.slice(0, -1), { sender: "bot", text: errorMessage }]);
+      speakText(errorMessage); // Speak error message if needed
     }
-};
-
-
-  // const handleSend = async () => {
-  //     if (!input.trim()) return;
-  
-  //     const newMessages = [...messages, { sender: "user", text: input }];
-  //     setMessages(newMessages);
-  //     setInput("");
-  
-  //     const controller = new AbortController();
-  //     const timeoutId = setTimeout(() => controller.abort(), 60000); // 60-second timeout
-  
-  //     try {
-  //         setMessages((prev) => [...prev, { sender: "bot", text: "⏳ Processing..." }]);
-  
-  //         // Extract last 5 exchanges for history
-  //         const history = newMessages.slice(-10).map(msg => `${msg.sender}: ${msg.text}`);
-  
-  //         const response = await fetch("https://c379-34-31-131-178.ngrok-free.app/alpha_bot96", { 
-  //             method: "POST",
-  //             headers: { "Content-Type": "application/json" },
-  //             body: JSON.stringify({ query: input, history }), 
-  //             signal: controller.signal,
-  //         });
-  
-  //         clearTimeout(timeoutId);
-  
-  //         if (!response.ok) throw new Error();
-  
-  //         const data = await response.json();
-  //         setMessages((prev) => [...prev.slice(0, -1), { sender: "bot", text: data.answer }]);
-  //     } catch (error) {
-  //         setMessages((prev) => [...prev.slice(0, -1), { sender: "bot", text: "⚠️ An error occurred. Try again!" }]);
-  //     }
-  // };
-  
+    setLoading(false);
+  };
 
   return (
     <div className="chat-container">
@@ -91,44 +119,68 @@ export default function ChatbotPage() {
       <div className={`sidebar ${isSidebarOpen ? "open" : ""}`}>
         <h4 className="sidebar-title">Menu</h4>
         <ul className="sidebar-menu">
-          <li >
+          <li>
             <Link href="/Sidebarpages/Dashboard" aria-label="Go to Dashboard">
-              <span className="menu-icon" style={{ margin: "5px" }}><img src="/dashboard-2-48.png" width="20" height="20"/></span>    Dashboard
+              <span className="menu-icon" style={{ margin: "5px" }}>
+                <img src="/dashboard-2-48.png" width="20" height="20" />
+              </span>
+              Dashboard
             </Link>
           </li>
           <li>
             <Link href="/Sidebarpages/settings" aria-label="Go to Settings">
-              <span className="menu-icon" style={{ margin: "5px" }}><img src="/gear-48.png" width="20" height="20"/></span> Settings
+              <span className="menu-icon" style={{ margin: "5px" }}>
+                <img src="/gear-48.png" width="20" height="20" />
+              </span>
+              Settings
             </Link>
           </li>
           <li>
             <Link href="/Sidebarpages/ai-doctor" aria-label="Go to AI Doctor">
-              <span className="menu-icon" style={{ margin: "5px" }}><img src="/appointment-reminders-48.png" width="20" height="20"/></span> Appointments
+              <span className="menu-icon" style={{ margin: "5px" }}>
+                <img src="/appointment-reminders-48.png" width="20" height="20" />
+              </span>
+              Appointments
             </Link>
           </li>
           <li>
             <Link href="/myhealth-tracker" aria-label="Go to MyHealth Tracker">
-              <span className="menu-icon" style={{ margin: "5px" }}><img src="/report-2-48.png" width="20" height="20"/></span> MyHealth Tracker
+              <span className="menu-icon" style={{ margin: "5px" }}>
+                <img src="/report-2-48.png" width="20" height="20" />
+              </span>
+              MyHealth Tracker
             </Link>
           </li>
           <li>
             <Link href="/special-care" aria-label="Go to Special Care Hub">
-              <span className="menu-icon" style={{ margin: "5px" }}><img src="/baby-48.png" width="20" height="20"/></span> Special Care Hub
+              <span className="menu-icon" style={{ margin: "5px" }}>
+                <img src="/baby-48.png" width="20" height="20" />
+              </span>
+              Special Care Hub
             </Link>
           </li>
           <li>
             <Link href="/Sidebarpages/xray">
-              <span className="menu-icon" style={{ margin: "5px" }}><img src="/xray-48.png" width="20" height="20"/></span> AI X-Ray Analyzer
+              <span className="menu-icon" style={{ margin: "5px" }}>
+                <img src="/xray-48.png" width="20" height="20" />
+              </span>
+              AI X-Ray Analyzer
             </Link>
           </li>
           <li>
             <Link href="/Sidebarpages/article" aria-label="Go to Disease Prevention">
-              <span className="menu-icon" style={{ margin: "5px" }}><img src="/virus.png" width="20" height="20"/></span> Disease Prevention
+              <span className="menu-icon" style={{ margin: "5px" }}>
+                <img src="/virus.png" width="20" height="20" />
+              </span>
+              Disease Prevention
             </Link>
           </li>
           <li>
             <Link href="/Sidebarpages/profile" aria-label="Go to Profile">
-             <span className="menu-icon" style={{ margin: "5px" }}><img src="/user-48.png" width="20" height="20"/></span> Profile
+              <span className="menu-icon" style={{ margin: "5px" }}>
+                <img src="/user-48.png" width="20" height="20" />
+              </span>
+              Profile
             </Link>
           </li>
         </ul>
@@ -145,7 +197,16 @@ export default function ChatbotPage() {
           </button>
           <div className="navbar-brand">AlphaWell</div>
         </div>
-        <div className="profile-icon">
+        <div className="d-flex align-items-center">
+          {/* Mute/Unmute Button */}
+          <button
+            className="btn btn-outline-primary me-2"
+            onClick={() => setIsMuted(!isMuted)}
+          >
+            {isMuted ? "🔇 Unmute" : "🔊 Mute"}
+          </button>
+
+          {/* Profile Icon */}
           <Link href="/profile">
             <img
               src="https://cdn-icons-png.flaticon.com/512/6522/6522516.png"
@@ -162,14 +223,25 @@ export default function ChatbotPage() {
       <div style={{ marginTop: "80px" }}>
         {/* AI Avatar Section */}
         <div className="ai-avatar">
-          <Image
-            // src="/ai-avatar.png"
-            src="/doc.jpg"
-            alt="AI Avatar"
-            width={200}
-            height={200}
-            className="avatar-image"
-          />
+          
+          {isSpeaking ? (
+            <Image
+              key={gifKey} // Force GIF reset with key change
+              src="/doc.gif"
+              alt="AI Avatar"
+              width={200}
+              height={200}
+              className="avatar-image"
+            />
+          ) : (
+            <Image
+              src="/doc.jpg"
+              alt="AI Avatar"
+              width={200}
+              height={200}
+              className="avatar-image"
+            />
+          )}
         </div>
 
         {/* Chat Box */}
