@@ -1,26 +1,53 @@
 // /src/app/api/news/route.js
 import { NextResponse } from "next/server";
+import { getJson } from "serpapi"; // Importing the correct method
 
-const NEWS_API_KEY = "YOUR_NEWS_API_KEY"; // Replace with your News API key
-const NEWS_API_URL = `https://newsapi.org/v2/top-headlines?country=in&category=health&apiKey=${NEWS_API_KEY}`;
+const API_KEY = "892ae319be8942b33fca9730138fc5087cd489a0dcbf7792329c7c99eae23eb1"; // Replace with your actual API key
 
 export async function GET() {
   try {
-    const res = await fetch(NEWS_API_URL);
+    // Fetching Google News data from SerpAPI using getJson
+    const newsData = await new Promise((resolve, reject) => {
+      getJson(
+        {
+          engine: "google_news",
+          q: "health", // Query keyword
+          gl: "us", // Geolocation (US)
+          hl: "en", // Language (English)
+          api_key: API_KEY, // API key
+        },
+        (error, json) => {
+          if (error) {
+            reject(error);
+          } else {
+            resolve(json);
+          }
+        }
+      );
+    });
 
-    if (!res.ok) {
+    // Check if articles are present
+    if (!newsData.news_results || newsData.news_results.length === 0) {
       return NextResponse.json(
-        { error: "Failed to fetch news from the API" },
-        { status: res.status }
+        { success: false, error: "No articles found." },
+        { status: 404 }
       );
     }
 
-    const data = await res.json();
-    return NextResponse.json({ articles: data.articles });
+    // Format the articles for frontend
+    const articles = newsData.news_results.map((article) => ({
+      title: article.title,
+      link: article.link,
+      source: article.source,
+      publishedAt: article.date,
+      thumbnail: article.thumbnail || null, // Optional thumbnail
+    }));
+
+    return NextResponse.json({ success: true, articles });
   } catch (error) {
-    console.error("Error fetching news:", error);
+    console.error("Error fetching SerpAPI:", error.message);
     return NextResponse.json(
-      { error: "Internal server error" },
+      { success: false, error: "Error fetching news." },
       { status: 500 }
     );
   }

@@ -8,52 +8,56 @@ export default function Dashboard() {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
 
   return (
+    
     <div className="d-flex">
+      
       {/* Sidebar */}
       <div className={`sidebar ${isSidebarOpen ? "open" : ""}`}>
         <h4 className="sidebar-title">Menu</h4>
-        <ul className="sidebar-menu">
-          <li>
-            <Link href="/">
-              <span className="menu-icon">
-                <img
-                  src="/dashboard-2-48.png"
-                  width="20"
-                  height="20"
-                  alt="Dashboard"
-                />
-              </span>{" "}
-              Home
+       <ul className="sidebar-menu">
+          <li >
+            <Link href="/Sidebarpages/Dashboard" aria-label="Go to Dashboard">
+              <span className="menu-icon" style={{ margin: "5px" }}><img src="/dashboard-2-48.png" width="20" height="20"/></span>    Dashboard
             </Link>
           </li>
           <li>
-            <Link href="/Sidebarpages/settings">
-              <span className="menu-icon">
-                <img
-                  src="/gear-48.png"
-                  width="20"
-                  height="20"
-                  alt="Settings"
-                />
-              </span>{" "}
-              Settings
+            <Link href="/Sidebarpages/settings" aria-label="Go to Settings">
+              <span className="menu-icon" style={{ margin: "5px" }}><img src="/gear-48.png" width="20" height="20"/></span> Settings
             </Link>
           </li>
           <li>
-            <Link href="/Sidebarpages/ai-doctor">
-              <span className="menu-icon">
-                <img
-                  src="/appointment-reminders-48.png"
-                  width="20"
-                  height="20"
-                  alt="AI Doctor"
-                />
-              </span>{" "}
-              AI Doctor
+            <Link href="/Sidebarpages/ai-doctor" aria-label="Go to AI Doctor">
+              <span className="menu-icon" style={{ margin: "5px" }}><img src="/appointment-reminders-48.png" width="20" height="20"/></span> Appointments
+            </Link>
+          </li>
+          <li>
+            <Link href="/myhealth-tracker" aria-label="Go to MyHealth Tracker">
+              <span className="menu-icon" style={{ margin: "5px" }}><img src="/report-2-48.png" width="20" height="20"/></span> MyHealth Tracker
+            </Link>
+          </li>
+          <li>
+            <Link href="/special-care" aria-label="Go to Special Care Hub">
+              <span className="menu-icon" style={{ margin: "5px" }}><img src="/baby-48.png" width="20" height="20"/></span> Special Care Hub
+            </Link>
+          </li>
+          <li>
+            <Link href="/Sidebarpages/xray">
+              <span className="menu-icon" style={{ margin: "5px" }}><img src="/xray-48.png" width="20" height="20"/></span> AI X-Ray Analyzer
+            </Link>
+          </li>
+          <li>
+            <Link href="/Sidebarpages/article" aria-label="Go to Disease Prevention">
+              <span className="menu-icon" style={{ margin: "5px" }}><img src="/virus.png" width="20" height="20"/></span> Disease Prevention
+            </Link>
+          </li>
+          <li>
+            <Link href="/Sidebarpages/profile" aria-label="Go to Profile">
+             <span className="menu-icon" style={{ margin: "5px" }}><img src="/user-48.png" width="20" height="20"/></span> Profile
             </Link>
           </li>
         </ul>
       </div>
+      
 
       {/* Main Content */}
       <div className={`main-content ${isSidebarOpen ? "shifted" : ""}`}>
@@ -65,6 +69,7 @@ export default function Dashboard() {
           >
             ☰
           </button>
+          <div className="navbar-brand">AlphaWell</div>
           <div className="ms-auto">
             <Link href="/profile">
               <button className="btn btn-dark me-2">Profile</button>
@@ -104,13 +109,37 @@ export default function Dashboard() {
             </div>
           </div>
 
+          {/* Recent Conversations Section */}
+          <div className="mt-4">
+            <h4 className="fw-bold text-center mb-4">Recent Conversations</h4>
+            <div className="row">
+              <div className="col-md-12">
+                <div className="card shadow p-3 mb-4 bg-light">
+                  <p className="text-muted mb-1">📚 Chat with AI Doctor</p>
+                  <small className="text-muted">3 days ago</small>
+                </div>
+                <div className="card shadow p-3 mb-4 bg-light">
+                  <p className="text-muted mb-1">💡 Health Report Analysis</p>
+                  <small className="text-muted">5 days ago</small>
+                </div>
+                <div className="card shadow p-3 mb-4 bg-light">
+                  <p className="text-muted mb-1">🏥 Appointment Summary</p>
+                  <small className="text-muted">1 week ago</small>
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Quick Actions */}
           <div className="text-center mt-4">
-            <Link href="/ai-doctor">
+            <Link href="/Sidebarpages/ai-doctor">
               <button className="btn btn-dark me-3">Go to AI Doctor</button>
             </Link>
+            <Link href="/Sidebarpages/chat-history">
+              <button className="btn btn-secondary me-3">View Chat History</button>
+            </Link>
             <Link href="/settings">
-              <button className="btn btn-secondary">Update Settings</button>
+              <button className="btn btn-outline-secondary">Update Settings</button>
             </Link>
           </div>
         </div>

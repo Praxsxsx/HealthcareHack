@@ -1,9 +1,9 @@
 "use client";
 import "bootstrap/dist/css/bootstrap.min.css";
 import {
-    doc,
-    getDoc,
-    updateDoc,
+  doc,
+  getDoc,
+  updateDoc,
 } from "firebase/firestore";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -100,7 +100,7 @@ export default function Settings() {
           </button>
         </div>
       ) : (
-        <div className="text-center">
+          <div className="text-center">
           <p>Please <Link href="/Authpages/LogIn">login</Link> to manage your settings.</p>
         </div>
       )}

@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.0",
+    "axios": "^1.8.4",
     "bootstrap": "^5.3.3",
     "cheerio": "^1.0.0",
     "dotenv": "^16.4.7",
@@ -17,9 +18,12 @@
     "framer-motion": "^12.4.7",
     "js-cookie": "^3.0.5",
     "next": "^15.2.3",
+    "next-auth": "^4.24.11",
     "node-fetch": "^3.3.2",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "rss-parser": "^3.13.0",
+    "serpapi": "^2.1.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

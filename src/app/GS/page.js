@@ -60,11 +60,23 @@ export default function ChatbotPage() {
       utterance.pitch = 1.1; // Slightly higher pitch for a more natural female voice
 
       // Start and stop GIF control
+      // Slight delay before stopping speaking GIF
+
+
       utterance.onstart = () => {
         setIsSpeaking(true);
         setGifKey((prevKey) => prevKey + 1); // Change key to reset GIF
       };
-      utterance.onend = () => setIsSpeaking(false);
+      //utterance.onend = () => setIsSpeaking(false);
+      // Smooth stop after speech ends
+        utterance.onend = () => {
+          console.log("Speech finished!");
+          
+          // Add a slight delay before stopping animation
+          setTimeout(() => {
+            setIsSpeaking(false); // ✅ Correct state update
+          }, -8900); // Increased delay for smoother transition
+        };
 
       synth.speak(utterance);
     } else {
@@ -106,7 +118,7 @@ export default function ChatbotPage() {
 
       setMessages((prev) => [...prev.slice(0, -1), { sender: "bot", text: data.answer }]);
     } catch (error) {
-      const errorMessage = "An error occurred. Try again!";
+      const errorMessage = "An error occurred. Try again da mooodhaevy!";
       setMessages((prev) => [...prev.slice(0, -1), { sender: "bot", text: errorMessage }]);
       speakText(errorMessage); // Speak error message if needed
     }

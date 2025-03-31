@@ -13,8 +13,9 @@ export default function NewsPage() {
         const res = await fetch("/api/news");
         const data = await res.json();
 
-        if (!res.ok) throw new Error(data.error || "Unexpected error fetching news");
+        if (!res.ok) throw new Error(data.error || "Unexpected error fetching news.");
 
+        // Use news_results from the API response
         setArticles(data.articles || []);
       } catch (error) {
         console.error("Error fetching news:", error);
@@ -29,23 +30,24 @@ export default function NewsPage() {
 
   return (
     <div>
-      <h1>India Health News</h1>
+      <h1>Latest Health News</h1>
       {loading && <p>Loading...</p>}
       {error && <p style={{ color: "red" }}>Error: {error}</p>}
       {!loading && !error && articles.length > 0 ? (
-        <ul>
+        <ul className="news-list">
           {articles.map((article, index) => (
-            <li key={index}>
+            <li key={index} className="news-item">
               <h2>{article.title}</h2>
-              <p>{article.description}</p>
-              <a href={article.url} target="_blank" rel="noopener noreferrer">
+              <p><strong>Source:</strong> {article.source || "Unknown"}</p>
+              <p><strong>Published on:</strong> {article.publishedAt || "Unknown"}</p>
+              <a href={article.link} target="_blank" rel="noopener noreferrer">
                 Read more
               </a>
             </li>
           ))}
         </ul>
       ) : (
-        !loading && <p>No articles available.</p>
+        !loading && <p>No news available.</p>
       )}
     </div>
   );

@@ -1,34 +1,54 @@
-import { Response } from "node-fetch";
+import { NextResponse } from "next/server";
+import { SerpApi } from "serpapi"; // Corrected import
+
+const API_KEY = "892ae319be8942b33fca9730138fc5087cd489a0dcbf7792329c7c99eae23eb1"; // Replace with your actual API key
 
 export async function GET() {
-  const apiKey = "pub_724460b3ff0d8ae0209bcd07c88a1b3621421";
-  const url = `https://newsdata.io/api/1/news?apikey=${apiKey}&country=in&language=en&category=health`;
-
   try {
-    const response = await fetch(url);
-    const contentType = response.headers.get("content-type");
+    const client = new SerpApi(API_KEY);  // Initialize SerpApi with your API key
 
-    // Handle empty response case
-    const textResponse = await response.text();
-    if (!textResponse) {
-      return Response.json({ error: "Empty response from API" }, { status: 500 });
+    // Fetching Google News data using SerpApi
+    const newsData = await new Promise((resolve, reject) => {
+      client.json(
+        {
+          engine: "google_news",
+          q: "health",  // Query keyword (can be dynamic if needed)
+          gl: "us",  // Geolocation (US)
+          hl: "en",  // Language (English)
+        },
+        (error, json) => {
+          if (error) {
+            reject(error);
+          } else {
+            resolve(json);
+          }
+        }
+      );
+    });
+
+    // Check if articles are available
+    if (!newsData.news_results || newsData.news_results.length === 0) {
+      return NextResponse.json(
+        { success: false, error: "No articles found." },
+        { status: 404 }
+      );
     }
 
-    if (!response.ok) {
-      return Response.json({ error: `API Error: ${response.statusText}` }, { status: response.status });
-    }
+    // Format the articles for frontend use
+    const articles = newsData.news_results.map((article) => ({
+      title: article.title,
+      link: article.link,
+      source: article.source,
+      publishedAt: article.date,
+      thumbnail: article.thumbnail || null,  // Optional thumbnail
+    }));
 
-    if (contentType?.includes("application/json")) {
-      try {
-        const data = JSON.parse(textResponse); // Parse manually to catch errors
-        return Response.json(data);
-      } catch (jsonError) {
-        return Response.json({ error: "Invalid JSON response from API" }, { status: 500 });
-      }
-    }
-
-    return Response.json({ error: "Unexpected content type from API" }, { status: 500 });
+    return NextResponse.json({ success: true, articles });
   } catch (error) {
-    return Response.json({ error: "Failed to fetch news", details: error.message }, { status: 500 });
+    console.error("Error fetching SerpAPI:", error.message);
+    return NextResponse.json(
+      { success: false, error: "Error fetching news." },
+      { status: 500 }
+    );
   }
 }
