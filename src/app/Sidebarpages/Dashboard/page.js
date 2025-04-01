@@ -63,13 +63,19 @@ export default function Dashboard() {
       <div className={`main-content ${isSidebarOpen ? "shifted" : ""}`}>
         {/* Navbar */}
         <nav className="navbar navbar-expand-lg navbar-light bg-light px-3 fixed-top d-flex align-items-center">
+        <div className="d-flex align-items-center">
           <button
-            className="btn bg-black text-white"
+            className="btn bg-black text-white me-2"
             onClick={() => setSidebarOpen(!isSidebarOpen)}
           >
             ☰
           </button>
-          <div className="navbar-brand">AlphaWell</div>
+          <div className="navbar-brand">
+            <Link href="/" className="custom-link">
+              AlphaWell
+            </Link>
+          </div>
+        </div>
           <div className="ms-auto">
             <Link href="/profile">
               <button className="btn btn-dark me-2">Profile</button>

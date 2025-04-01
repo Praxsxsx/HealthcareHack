@@ -7,7 +7,7 @@ const API_KEY =
 export async function GET() {
   try {
     // SerpAPI URL with query and API key
-    const url = `https://serpapi.com/search.json?engine=google_news&q=diseaseoutbreaks&hl=en&gl=us&google_domain=google.com&num=10&start=0&safe=active&api_key=${API_KEY}`;
+    const url = `https://serpapi.com/search.json?engine=google_news&q=newdisease&hl=en&gl=us&google_domain=google.com&num=10&start=0&safe=active&api_key=${API_KEY}`;
 
     // Fetch data from SerpAPI
     const res = await fetch(url);
@@ -23,7 +23,7 @@ export async function GET() {
       title: article.title,
       link: article.link,
       source: article.source.name,
-      thumbnail: article.thumbnail,
+      thumbnail: article.thumbnail || null, // Add thumbnail with fallback to null if not available
       date: article.date,
     }));
 

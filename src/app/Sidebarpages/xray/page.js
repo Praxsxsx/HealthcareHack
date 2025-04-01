@@ -1,10 +1,11 @@
 "use client";
-
+import { useRouter } from "next/navigation"; // Use this in app directory
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import "./xray.css";
 
 export default function Chatbot() {
+  const router = useRouter(); // Initialize router for navigation
   const [messages, setMessages] = useState([
     {
       text: " Upload your X-ray image and discover the invisible! ✨",
@@ -13,7 +14,7 @@ export default function Chatbot() {
   ]);
   const [input, setInput] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
-  const [fileName, setFileName] = useState(""); // ✅ Store file name for display
+  const [fileName, setFileName] = useState(""); 
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef(null);
 
@@ -21,13 +22,12 @@ export default function Chatbot() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, loading]);
 
-  // ✅ Handle X-ray file selection
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       setSelectedFile(file);
-      setFileName(file.name); 
-      e.target.value = ""; 
+      setFileName(file.name);
+      e.target.value = "";
     }
   };
 
@@ -39,7 +39,6 @@ export default function Chatbot() {
       setInput("");
     }
 
-    // Add file upload message if a file is selected
     if (selectedFile) {
       setMessages((prev) => [
         ...prev,
@@ -61,7 +60,6 @@ export default function Chatbot() {
         formData.append("file", selectedFile);
       }
 
-      // ✅ Send request to /analyze_xray endpoint
       const response = await fetch(
         "https://4d92-34-148-72-96.ngrok-free.app/analyze_xray",
         {
@@ -73,18 +71,16 @@ export default function Chatbot() {
       if (!response.ok) throw new Error();
 
       if (selectedFile) {
-        const blob = await response.blob(); // ✅ Get image as blob
-        const imageUrl = URL.createObjectURL(blob); // ✅ Create URL for processed image
+        const blob = await response.blob();
+        const imageUrl = URL.createObjectURL(blob);
         setMessages((prev) => [
-          ...prev.slice(0, -1), // Remove "Processing..." message
-          { text: " Oh my! You've got fractures consult a proffessional", sender: "bot" },
+          ...prev.slice(0, -1),
+          { text: " Oh my! You've got fractures consult a professional", sender: "bot" },
           { image: imageUrl, sender: "bot" },
         ]);
       } else {
         const data = await response.json();
-        const botText = `✅ Response: ${
-          data.answer || "No response received."
-        }`;
+        const botText = `✅ Response: ${data.answer || "No response received."}`;
         setMessages((prev) => [
           ...prev.slice(0, -1),
           { text: botText, sender: "bot" },
@@ -107,7 +103,16 @@ export default function Chatbot() {
   };
 
   return (
+    <div>
+    <button 
+        onClick={() => router.push('/')} // Navigate to the main page on click
+        className="back-btn"
+      >
+         Go back to Main Page
+      </button>
     <div className="cb-container">
+      {/* Go to Main Page / Back Button */}
+
       <h1 className="cb-title"> Upload Your X-ray</h1>
       <div className="cb-box">
         {messages.map((msg, index) => (
@@ -158,6 +163,7 @@ export default function Chatbot() {
           {loading ? "⏱ Sending..." : "Send ⌯⌲"}
         </button>
       </div>
+    </div>
     </div>
   );
 }

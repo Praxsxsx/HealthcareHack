@@ -1,0 +1,108 @@
+
+/* Container with Fixed Shape */
+.container {
+  background-image: url('https://wallpapercave.com/uwp/uwp4730315.png'); /* Replace with your image URL */
+  background-size: cover; /* Ensures the image covers the entire container */
+  background-position: center; /* Centers the image */
+  background-repeat: no-repeat;
+  font-family: Arial, sans-serif;
+  background-color: rgba(0, 0, 0, 0.8); /* Semi-transparent overlay */
+  padding: 70px;
+  border-radius: 30px;
+  min-height: 600px; /* Forces minimum height */
+  height: auto;
+  width: 80%;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 12px rgb(11, 11, 11);
+  justify-content: center;
+  align-items: center;
+  transition: min-height 0.3s ease-in-out;
+}
+
+/* Ensuring Loading & Error Messages Hold the Space */
+.loading,
+.error,
+.noArticles {
+  text-align: center;
+  color: #ffffff;
+  font-size: 1.3rem;
+  margin-top: 20px;
+  min-height: 200px; /* Ensures height even when empty */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Title */
+.title {
+  text-align: center;
+  font-size: 48px;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgb(11, 11, 11);
+  background: #b3d6f8;
+  padding: 6px 12px;
+  border-radius: 20px;
+  padding: 30px;
+  color: #02022d;
+  text-transform: capitalize;
+  letter-spacing: 1.5px;
+}
+
+/* List (Articles) */
+.list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 20px;
+  max-width: 1000px;
+  width: 100%;
+  padding: 0;
+}
+
+/* Individual Article */
+.article {
+  background-color: #b3d6f8;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgb(11, 11, 11);
+  padding: 20px;
+  transition: transform 0.2s ease-in-out;
+  overflow: hidden;
+}
+
+.article:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(255, 255, 255, 0.15);
+}
+
+/* Links */
+.link {
+  display: inline-block;
+  margin-top: 10px;
+  color: #262626;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.link:hover {
+  text-decoration: underline;
+  color: #74c0fc;
+}
+
+/* Thumbnails */
+.thumbnail {
+  display: block;
+  margin-top: 12px;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  border: 1px solid #333;
+}
+
+/* Date */
+.date {
+  font-size: 0.9rem;
+  color: #000000;
+  margin-top: 8px;
+}

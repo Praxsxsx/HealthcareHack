@@ -36,6 +36,10 @@ body::before {
   padding: 0 20px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
+.custom-link {
+  text-decoration: none; /* Remove underline */
+  color: inherit; /* Inherit the color from the parent element */
+}
 
 /* Sidebar */
 .sidebar {
