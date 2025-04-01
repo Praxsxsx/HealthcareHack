@@ -1,0 +1,76 @@
+/* Profile Picture */
+.profile-pic {
+  border: 4px solid #343a40;
+  transition: transform 0.2s;
+}
+
+.profile-pic:hover {
+  transform: scale(1.05);
+}
+
+/* Card Styling */
+.card {
+  border-radius: 12px;
+  transition: box-shadow 0.2s;
+}
+
+.card:hover {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Buttons */
+.btn-dark {
+  background-color: #343a40;
+  border-color: #343a40;
+}
+
+.btn-dark:hover {
+  background-color: #23272b;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  border-color: #6c757d;
+}
+
+.btn-secondary:hover {
+  background-color: #5a6268;
+}
+/* Profile Picture */
+.profile-pic {
+  border: 4px solid #343a40;
+  transition: transform 0.2s;
+}
+
+.profile-pic:hover {
+  transform: scale(1.05);
+}
+
+/* Card Styling */
+.card {
+  border-radius: 12px;
+  transition: box-shadow 0.2s;
+}
+
+.card:hover {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Buttons */
+.btn-dark {
+  background-color: #343a40;
+  border-color: #343a40;
+}
+
+.btn-dark:hover {
+  background-color: #23272b;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  border-color: #6c757d;
+}
+
+.btn-secondary:hover {
+  background-color: #5a6268;
+}

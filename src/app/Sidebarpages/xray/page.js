@@ -1,72 +1,114 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./xray.css";
 
 export default function Chatbot() {
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState([
+    {
+      text: " Upload your X-ray image and discover the invisible! ✨",
+      sender: "bot",
+    },
+  ]);
   const [input, setInput] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
+  const [fileName, setFileName] = useState(""); // ✅ Store file name for display
+  const [loading, setLoading] = useState(false);
+  const messagesEndRef = useRef(null);
 
-  // Send message or file
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, loading]);
+
+  // ✅ Handle X-ray file selection
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedFile(file);
+      setFileName(file.name); 
+      e.target.value = ""; 
+    }
+  };
+
   const sendMessage = async () => {
-    // Prevent sending if no text & no file
     if (!input.trim() && !selectedFile) return;
 
-    // 1) Add the user's message to chat
-    const userMsg = {
-      text: input || `Uploaded file: ${selectedFile?.name}`,
-      sender: "user",
-    };
-    setMessages((prev) => [...prev, userMsg]);
-
-    // Clear the input field
-    setInput("");
-
-    // 2) Prepare a bot response (initially placeholder)
-    let botText = "Bot: This is a placeholder response!";
-
-    // 3) If the user selected a file, call FastAPI to classify
-    if (selectedFile) {
-      try {
-        const formData = new FormData();
-        formData.append("file", selectedFile);
-
-        // Make POST request to FastAPI endpoint
-        const response = await fetch("http://localhost:8000/predict/", {
-          method: "POST",
-          body: formData,
-        });
-
-        const data = await response.json(); 
-        // data should look like: { predicted_class: 3 } (example)
-
-        if (response.ok) {
-          botText = `Bot: The predicted class is ${data.predicted_class}`;
-        } else {
-          botText = `Bot: Error occurred - ${data?.error || "Unknown error"}`;
-        }
-      } catch (error) {
-        botText = `Bot: Unable to process image. Error: ${error.message}`;
-      } finally {
-        // Reset the file after upload
-        setSelectedFile(null);
-      }
+    if (input.trim()) {
+      setMessages((prev) => [...prev, { text: input, sender: "user" }]);
+      setInput("");
     }
 
-    // 4) If no file was uploaded but there's text input, 
-    //    you can keep the placeholder or integrate another API call.
+    // Add file upload message if a file is selected
+    if (selectedFile) {
+      setMessages((prev) => [
+        ...prev,
+        { text: ` ᵔ ᵕ ᵔ   File uploaded for processing: ${fileName}`, sender: "user" },
+      ]);
+    }
 
-    // 5) Add bot's response to chat
-    const botMsg = { text: botText, sender: "bot" };
-    setMessages((prev) => [...prev, botMsg]);
+    setLoading(true);
+
+    // Bot's "Processing..." message
+    setMessages((prev) => [
+      ...prev,
+      { text: " Analyzing... Please wait.", sender: "bot" },
+    ]);
+
+    try {
+      const formData = new FormData();
+      if (selectedFile) {
+        formData.append("file", selectedFile);
+      }
+
+      // ✅ Send request to /analyze_xray endpoint
+      const response = await fetch(
+        "https://4d92-34-148-72-96.ngrok-free.app/analyze_xray",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      if (!response.ok) throw new Error();
+
+      if (selectedFile) {
+        const blob = await response.blob(); // ✅ Get image as blob
+        const imageUrl = URL.createObjectURL(blob); // ✅ Create URL for processed image
+        setMessages((prev) => [
+          ...prev.slice(0, -1), // Remove "Processing..." message
+          { text: " Oh my! You've got fractures consult a proffessional", sender: "bot" },
+          { image: imageUrl, sender: "bot" },
+        ]);
+      } else {
+        const data = await response.json();
+        const botText = `✅ Response: ${
+          data.answer || "No response received."
+        }`;
+        setMessages((prev) => [
+          ...prev.slice(0, -1),
+          { text: botText, sender: "bot" },
+        ]);
+      }
+    } catch (error) {
+      console.error("Error processing:", error);
+      setMessages((prev) => [
+        ...prev.slice(0, -1),
+        {
+          text: "Error occurred while processing. Please try again!",
+          sender: "bot",
+        },
+      ]);
+    } finally {
+      setLoading(false);
+      setSelectedFile(null);
+      setFileName(""); 
+    }
   };
 
   return (
     <div className="cb-container">
-      <h1 className="cb-title">AI Chatbot</h1>
-
+      <h1 className="cb-title"> Upload Your X-ray</h1>
       <div className="cb-box">
         {messages.map((msg, index) => (
           <motion.div
@@ -78,31 +120,42 @@ export default function Chatbot() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.2 }}
           >
-            {msg.text}
+            {msg.text && <p>{msg.text}</p>}
+            {msg.image && (
+              <div className="cb-img-container">
+                <img src={msg.image} alt="Processed X-ray" className="cb-img" />
+                <a
+                  href={msg.image}
+                  download="processed_xray.jpg"
+                  className="cb-download-btn"
+                >
+                  💾 Download Image
+                </a>
+              </div>
+            )}
           </motion.div>
         ))}
+        <div ref={messagesEndRef} />
       </div>
 
       <div className="cb-input-row">
-        {/* Text input */}
+        {/* Custom File Input */}
+        <label htmlFor="file-upload" className="cb-file-label">
+          🗁 Choose File
+        </label>
         <input
-          type="text"
-          className="cb-input-field"
-          placeholder="Type your message..."
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-        />
-
-        {/* File upload input */}
-        <input
+          id="file-upload"
           type="file"
+          accept="image/*"
           className="cb-file-upload"
-          onChange={(e) => setSelectedFile(e.target.files[0])}
+          onChange={handleFileChange}
+          disabled={loading}
         />
 
-        {/* Send button */}
-        <button className="cb-send-btn" onClick={sendMessage}>
-          Send
+        {fileName && <span className="cb-file-name">🗀  {fileName}</span>}
+
+        <button className="cb-send-btn" onClick={sendMessage} disabled={loading}>
+          {loading ? "⏱ Sending..." : "Send ⌯⌲"}
         </button>
       </div>
     </div>
